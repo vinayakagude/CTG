@@ -125,7 +125,8 @@ def feature_extraction(file):
     peaks = np.array(peaks)
     maxs = np.array(peaks[0])
     mins = np.array(peaks[1])
- 
+    
+    # Algorithm for Baseline, Accelerations and Decelerations.
     if len(maxs) == 0 or len(mins) == 0:
         output = []
         output.append('NA')
@@ -327,7 +328,8 @@ def feature_extraction(file):
         plt.plot(pk,fhr[pk],'ro')
     
        
-        
+    # Contractions
+    
     ucz = np.asarray(ucz)
     ucz = ucz[0]
     N = 50
@@ -402,33 +404,37 @@ def feature_extraction(file):
     dl = []
     ds = []
     dp = []
+    
+    # Light Decelerations
     for x in range(len(lw)):
         if (mstarts[x] - mends[x]) < 480:
             dl.append(lw[x])
+            
+    # Prolonged Decelerations
     for x in range(len(lw)):
         if (mstarts[x] - mends[x]) > 480 and (mstarts[x] - mends[x]) < 1200:
             dp.append(lw[x])
+            
+    # Severe Decelerations
     for x in range(len(lw)):
         if (mstarts[x] - mends[x]) > 1200:
             ds.append(lw[x])
-            
+     
+    # Variance
     real = fhr
     acde = []
-    # Variability
     for x in range(len(pk)):
         for y in range(len(starts)):
             f = starts[y]
             for f in range(starts[y],ends[y]):
                 acde.append(f)
-                f = f+1
-            
+                f = f + 1
     for x in range(len(lw)):
         for y in range(len(mstarts)):
             f = mstarts[y]
             for f in range(mstarts[y],mends[y]):
                 acde.append(f)
                 f = f + 1
-    
     real = np.delete(real,acde)
     if len(real)==0:
         var = 0
@@ -436,28 +442,33 @@ def feature_extraction(file):
         maxr = max(real)
         minr = min(real)
         var = maxr - minr
-    
+        
+    # Peaks within 5% of the maximum Fetal heart Rate
     fhr = fhr.astype(int)
     counts = np.bincount(fhr)
     peaks = []
     for x in range(len(counts)):
         if counts[x] > 0.05*len(fhr):
             peaks.append(x)
+            
+    # Minimum value of the distribution
     minh = np.amin(fhr)
+    
+    # Maximum value of the distribution
     maxh = np.amax(fhr)
+    
+    # Width of the distribution
     widh = maxh - minh
+    
+    # Median
     medianh = np.median(fhr)
+    
+    # Mean
     meanh = np.mean(fhr)
+    
+    # Mode
     modeh =stats.mode(fhr,axis=0).mode[0]   
+    
+    
     output = np.array([len(pk),len(lw),len(pa),len(ln),len(cont),len(dl),len(dp),len(ds),float(var),widh,minh,maxh,len(peaks),modeh,meanh,medianh])
-    print(output)
     return output
-
-    '''
-    ind = []  
-    for x in range(len(peaks)):
-        ind.append(peaks[x][0])    
-    print(starts)
-    print(ends)    
-    plt.plot(ind,fhr1[0][ind],'bo')
-'''   
